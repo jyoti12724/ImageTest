@@ -26,7 +26,8 @@ struct ImageDetailView: View {
                                         .frame(width: UIScreen.main.bounds.width, height: 200)
                                         .id(index)
                                         .onAppear {
-                                            updateSelectedIndex(using: geo.frame(in: .global), index: index)
+                                            //updateSelectedIndex(using: geo.frame(in: .global), index: index)
+                                            updateCurrentIndex(geometry: geo, index: index)
                                         }
                                 } placeholder: {
                                     ProgressView()
@@ -44,7 +45,7 @@ struct ImageDetailView: View {
                     // Scroll to the selected index when the view appears
                     scrollToIndex(scrollViewProxy: scrollViewProxy)
                 }
-
+                
                 // Dynamic text that updates based on the current visible image
                 if selectedIndex < images.count {
                     Text(images[selectedIndex].first_name ?? "Unknown")
@@ -60,11 +61,22 @@ struct ImageDetailView: View {
     }
     
     // Function to scroll to the selected index when the view appears
-     func scrollToIndex(scrollViewProxy: ScrollViewProxy) {
+    func scrollToIndex(scrollViewProxy: ScrollViewProxy) {
         if images.indices.contains(selectedIndex) {
             scrollViewProxy.scrollTo(selectedIndex, anchor: .center)
         }
     }
+    
+    func updateCurrentIndex(geometry: GeometryProxy, index: Int) {
+        let xOffset = geometry.frame(in: .global).minX
+        let screenWidth = UIScreen.main.bounds.width
+        if abs(xOffset) < screenWidth / 2 {
+            DispatchQueue.main.async {
+                selectedIndex = index
+            }
+        }
+    }
+
     
     // Function to update the selected index dynamically as the user scrolls
      func updateSelectedIndex(using frame: CGRect, index: Int) {
